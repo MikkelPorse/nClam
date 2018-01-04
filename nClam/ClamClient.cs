@@ -158,9 +158,17 @@
         /// <returns>If the server responds with PONG, returns true.  Otherwise returns false.</returns>
         public async Task<bool> PingAsync(CancellationToken cancellationToken)
         {
-            var result = await ExecuteClamCommandAsync("PING", cancellationToken).ConfigureAwait(false);
-            return result.ToLowerInvariant() == "pong";
-        }
+			try
+			{
+				var result = await ExecuteClamCommandAsync("PING", cancellationToken).ConfigureAwait(false);
+				return result.ToLowerInvariant() == "pong";
+			}
+			// Service not running or not accepting connections at specified host:port
+			catch (SocketException)
+			{
+				return false;
+			}
+		}
 
         /// <summary>
         /// Scans a file/directory on the ClamAV Server.
